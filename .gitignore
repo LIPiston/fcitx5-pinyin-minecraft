@@ -2,3 +2,5 @@
 /*.raw
 /*.dict
 /*.dict.yaml
+__pycache__/
+.pytest_cache/

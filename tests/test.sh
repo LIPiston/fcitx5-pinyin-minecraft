@@ -1,5 +1,4 @@
 #!/bin/bash
-cp tests/blob/titles.txt titles.txt
-# Fetch process are skipped
-make moegirl.dict
-make moegirl.dict.yaml
+# Build from a checked-in title list so the fetch step is skipped.
+cp tests/blob/titles.txt mc-titles-cn.txt
+make minecraft-cn.dict

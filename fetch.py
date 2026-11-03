@@ -65,6 +65,38 @@ def get_all_titles(base_api_url, output_filename, variant=None):
     with open(output_filename, "w") as f:
         f.write("\n".join(articles))
 
+def get_all_titles_in_variant(base_api_url, output_filename, variant):
+    """Fetch every page title with its variant title in bulk.
+
+    Combines generator=allpages with prop=info&inprop=varianttitles so one
+    request yields a whole page of titles instead of one request per title.
+    Page order is the same as list=allpages, which convert.py relies on when
+    it drops sub-pages of the previous entry.
+    """
+    articles = []
+    count = 0
+    gapcontinue = ""
+    while True:
+        url = base_api_url + "?action=query&generator=allpages&gaplimit=max&prop=info&inprop=varianttitles&format=json"
+        if gapcontinue:
+            url += "&gapcontinue=" + quote_plus(gapcontinue)
+        data = fetch(url)
+        for i in data["query"]["pages"].values():
+            count += 1
+            title = i["title"]
+            if has_hanzi_parts(title):
+                t = i.get("varianttitles", {}).get(variant, title)
+                articles.append(t)
+                print(f"effective {len(articles)} out of {count}, last one {t}")
+        print("Got {} pages".format(len(articles)))
+        if "continue" in data:
+            gapcontinue = data["continue"]["gapcontinue"]
+        else:
+            break
+    print("Finished.")
+    with open(output_filename, "w") as f:
+        f.write("\n".join(articles))
+
 def get_all_categories(base_api_url, output_filename, variant=None):
     articles = []
     data = fetch(base_api_url + "?action=query&list=allcategories&format=json")
