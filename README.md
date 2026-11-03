@@ -85,8 +85,12 @@ network fetch.
 The job can also be started by hand from the Actions tab (`workflow_dispatch`).
 
 Fetching uses one bulk query per page of results (`generator=allpages` with
-`inprop=varianttitles`) instead of one request per title, so a full rebuild takes
-about 60 requests and a couple of minutes rather than hours of polling.
+`inprop=varianttitles`) instead of one request per title, so a full rebuild makes
+about 60 requests rather than tens of thousands. From a home connection that is
+about 90 seconds; GitHub's runners are throttled by the wiki to roughly one
+request per 50 seconds, so a run takes about 45 minutes — hence the 150-minute
+job timeout. The job fails instead of publishing if fewer than 5000 entries come
+out, so a half-finished fetch never replaces the release asset.
 
 ## License
 
