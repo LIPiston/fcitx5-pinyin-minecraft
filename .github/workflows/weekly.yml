@@ -17,7 +17,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # The wiki throttles requests from datacenter IPs: a full fetch takes about
+    # 50 minutes here, against roughly 90 seconds from a home connection. Keep
+    # a wide margin so a slow run does not get killed.
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,9 +47,16 @@ jobs:
       - name: Collect build info
         run: |
           test -s minecraft-cn.dict
+          ENTRIES=$(wc -l < mc-cn.raw)
           ls -l minecraft-cn.dict mc-cn.raw
           echo "DATE=$(date -u +%Y%m%d)" >> "$GITHUB_ENV"
-          echo "ENTRIES=$(wc -l < mc-cn.raw)" >> "$GITHUB_ENV"
+          echo "ENTRIES=${ENTRIES}" >> "$GITHUB_ENV"
+          # A half-finished fetch still produces a small but valid dictionary,
+          # so guard the entry count rather than trusting the build to fail.
+          if [ "$ENTRIES" -lt 5000 ]; then
+            echo "Only ${ENTRIES} entries, expected at least 5000." >&2
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -80,8 +90,15 @@ jobs:
             gh release upload nightly minecraft-cn.dict --clobber
             gh release edit nightly --notes-file release-notes.md
           else
+            # create has to carry the asset: uploading afterwards only happens
+            # on the branch above, so passing no file would publish an empty
+            # release.
             gh release create nightly \
               --title "Nightly build" \
               --notes-file release-notes.md \
-              --latest
+              --latest \
+              minecraft-cn.dict
           fi
+
+          # Fail loudly instead of publishing a release nobody can download.
+          gh release view nightly --json assets --jq '.assets[].name' | grep -qx minecraft-cn.dict
