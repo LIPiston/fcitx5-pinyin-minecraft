@@ -2,13 +2,28 @@
 
 ## About this project / 关于本项目
 
-This repository is a rebuild of [oldherl/fcitx5-pinyin-minecraft](https://github.com/oldherl/fcitx5-pinyin-minecraft),
+This repository was migrated from
+[oldherl/fcitx5-pinyin-minecraft](https://github.com/oldherl/fcitx5-pinyin-minecraft),
 which generated an fcitx5 pinyin dictionary from the page titles of
-[中文 Minecraft Wiki](https://zh.minecraft.wiki/). That repository is gone, so this one
-carries the code forward and rebuilds the dictionary automatically every week.
+[中文 Minecraft Wiki](https://zh.minecraft.wiki/). The code and the full git history
+(dating back to 2020) are carried over, so credit for the original work stays with its
+author.
 
-本仓库重建自 [oldherl/fcitx5-pinyin-minecraft](https://github.com/oldherl/fcitx5-pinyin-minecraft)。
-原仓库已删除，这里沿用其代码，并改为每周自动重新构建词库。
+The upstream project is still reachable but no longer maintained: its last commit was
+in May 2026, and its automatic builds ran once a month on CircleCI. This repository
+takes over maintenance. It rebuilds the dictionary automatically every Saturday and
+publishes the result to a fixed `nightly` release. Fetching now uses one bulk query per
+page of results instead of one request per title, which brings a full rebuild down from
+tens of thousands of requests to about 60, and the build is covered by unit tests plus a
+minimum-entry check so a short fetch never replaces the published dictionary.
+
+本仓库从 [oldherl/fcitx5-pinyin-minecraft](https://github.com/oldherl/fcitx5-pinyin-minecraft)
+迁移而来，沿用其代码与全部 git 历史（最早可追溯到 2020 年），原作者的工作与署名一并保留。
+
+原项目仍可访问，但已停止维护：最后一次提交在 2026 年 5 月，此前的自动构建由 CircleCI
+每月执行一次。因此本仓库接手维护：改为每周六自动重新构建词库，并发布到固定的
+`nightly` release；抓取方式改为按结果分页批量查询，完整重建从数万次请求降到约 60 次；
+同时增加了单元测试和词条数量下限保护，抓取不完整时不会覆盖已发布的词库。
 
 ## Upstream projects / 上游项目
 
